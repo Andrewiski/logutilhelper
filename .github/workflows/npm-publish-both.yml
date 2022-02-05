@@ -1,0 +1,72 @@
+name: Publish packages to GitHub and NPM
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+env:
+  IMAGE_NAME: logutilhelper
+jobs:
+   tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: |
+          if [ -f tests/prebuildtests.js ]; then
+            node tests/prebuildtests.js
+          else
+            echo not prebuildtests.js found
+          fi
+  build:
+    runs-on: ubuntu-latest 
+    permissions: 
+      contents: read
+      packages: write 
+    steps:
+      - name: Run NPM CI
+        run: npm ci
+      - name: Prepare Registry Settings for NPM
+        run: |
+         #echo REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+         #echo ACTOR=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+         #echo NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }} >> $GITHUB_ENV
+         echo NODE_AUTH_TOKEN=${{ secrets.NPM_TOKEN }} >> $GITHUB_ENV
+      - name: Checkout Files
+        uses: actions/checkout@v2
+      # Setup .npmrc file to publish to GitHub Packages
+      - name: Setup Node Config .npmrc for NPM
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          # registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@andrewiski'
+      - name: Display Node setting
+        run: cat $NPM_CONFIG_USERCONFIG
+      
+      - name: NPM Publish to NPM Repository
+        #run: npm publish --registry "https://npm.pkg.github.com/@$ACTOR"
+        run: npm publish --access public
+        - name: Prepare Registry Settings for NPM
+        run: |
+         #echo REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+         #echo ACTOR=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+         echo NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }} >> $GITHUB_ENV
+         
+      - name: Checkout Files
+        uses: actions/checkout@v2
+      # Setup .npmrc file to publish to GitHub Packages
+      - name: Setup Node Config for GitHub
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          registry-url: 'https://npm.pkg.github.com'
+          #registry-url: 'https://registry.npmjs.org'
+          scope: 'andrewiski'
+      - name: Display Node setting
+        run: cat $NPM_CONFIG_USERCONFIG
+      - name: NPM Publish to NPM Repository
+        #run: npm publish --registry "https://npm.pkg.github.com/@$ACTOR"
+        run: npm publish --access public
+        
