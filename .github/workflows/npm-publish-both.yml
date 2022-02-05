@@ -7,7 +7,7 @@ on:
 env:
   IMAGE_NAME: logutilhelper
 jobs:
-   tests:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
           if [ -f tests/prebuildtests.js ]; then
             node tests/prebuildtests.js
           else
-            echo not prebuildtests.js found
+            echo no prebuildtests.js found skipping
           fi
   build:
     runs-on: ubuntu-latest 
