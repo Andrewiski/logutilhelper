@@ -1,0 +1,30 @@
+{
+    "name": "@andrewiski/logutilhelper",
+    "version": "0.0.4",
+    "description": "Tool to assist with debug and file logs",
+    "main": "logutil.js",
+    "license": "GPL-3.0-or-later",
+    "private": false,
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/andrewiski/logutilhelper"
+    },
+    "author": {
+      "name": "Andrew DeVries",
+      "email": "adevries@digitalexample.com",
+      "url": "https://digitalexample.com"
+    },
+    "scripts": {
+      "start": "node logutilhelper.js"
+    },
+    "dependencies": {
+      
+      "debug": "^4.3.2",
+      "extend": "^3.0.2",
+      "moment": "^2.29.1",
+      "uuid": "^8.3.2",
+      "winston": "^3.3.3",
+      "winston-daily-rotate-file": "^4.5.5"
+    }
+  }
+  
