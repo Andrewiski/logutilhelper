@@ -2,7 +2,7 @@
     "name": "@andrewiski/logutilhelper",
     "version": "0.0.4",
     "description": "Tool to assist with debug and file logs",
-    "main": "logutil.js",
+    "main": "logutilhelper.js",
     "license": "GPL-3.0-or-later",
     "private": false,
     "repository": {
@@ -15,10 +15,9 @@
       "url": "https://digitalexample.com"
     },
     "scripts": {
-      "start": "node logutilhelper.js"
+      "start": "node example/basicFileAndDebug.js"
     },
     "dependencies": {
-      
       "debug": "^4.3.2",
       "extend": "^3.0.2",
       "moment": "^2.29.1",
