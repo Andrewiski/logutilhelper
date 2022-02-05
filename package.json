@@ -14,8 +14,12 @@
       "email": "adevries@digitalexample.com",
       "url": "https://digitalexample.com"
     },
+    
+    "engines": {
+      "node": ">=12.0"
+    },
     "scripts": {
-      "start": "node example/basicFileAndDebug.js"
+      "start": "node example/basic.js"
     },
     "dependencies": {
       "debug": "^4.3.2",
