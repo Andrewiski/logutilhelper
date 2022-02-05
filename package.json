@@ -19,6 +19,7 @@
       "node": ">=12.0"
     },
     "scripts": {
+      "test": "node test/logutilhelper.js",
       "start": "node example/basic.js"
     },
     "dependencies": {
