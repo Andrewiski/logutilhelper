@@ -1,6 +1,6 @@
 {
     "name": "@andrewiski/logutilhelper",
-    "version": "0.0.4",
+    "version": "1.0.2",
     "description": "Tool to assist with debug and file logs",
     "main": "logutilhelper.js",
     "license": "GPL-3.0-or-later",
