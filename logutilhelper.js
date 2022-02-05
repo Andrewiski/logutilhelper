@@ -53,7 +53,7 @@ var LogUtilHelper = function (options) {
     var logRequestsFile = null;
     var logSocketConnectionFile = null
     
-    if(objOptions.logToFile){
+    if(self.options.logToFile){
         logFile = winston.createLogger({
             level: winstonstreamerLogLevel,
             exitOnError: false,
@@ -171,8 +171,8 @@ var LogUtilHelper = function (options) {
 
     var getLogLevel = function ( appName, appSubname) {
 
-        if (objOptions.appLogLevels[appName] && self.options.appLogLevels[appName][appSubname]) {
-            return getLevelIntegerValue(objOptions.appLogLevels[appName][appSubname]);
+        if (self.options.appLogLevels[appName] && self.options.appLogLevels[appName][appSubname]) {
+            return getLevelIntegerValue(self.options.appLogLevels[appName][appSubname]);
         } else {
             return 100;  // Not found dump it to the screen like its a trace
         }
@@ -224,7 +224,7 @@ var LogUtilHelper = function (options) {
             
             if (shouldLog(appName, appSubname, logLevel, self.options.logLevel) === true) {
 
-                if(objOptions.debugUtilEnabled){
+                if(self.options.debugUtilEnabled){
                     debug(arrayPrint(args));
                 }
     
@@ -268,8 +268,8 @@ var LogUtilHelper = function (options) {
                     }
                 }
                 try {
-                    if (objOptions.logEventHandler) {
-                        objOptions.logEventHandler(logData);
+                    if (self.options.logEventHandler) {
+                        self.options.logEventHandler(logData);
                     }
                 } catch (ex) {
                     console.log("error", "LogUtilHelper.js", "An Error Occured calling logEventHandler", ex);

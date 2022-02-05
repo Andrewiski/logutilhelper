@@ -19,8 +19,8 @@
       "node": ">=12.0"
     },
     "scripts": {
-      "test": "node test/logutilhelper.js",
-      "start": "node example/basic.js"
+      "test": "node test/test-logutilhelper.js",
+      "start": "DEBUG=app USELOCALLIB=true node example/basic.js"
     },
     "dependencies": {
       "debug": "^4.3.2",
