@@ -371,13 +371,13 @@ var LogUtilHelper = function (options) {
             if (args.length > 1) {
                 args.shift(); //remove the socket from the array
             }
-            var connInfo = getConnectionInfo(req);
+            var connInfo = getRequestConnectionInfo(req);
             log(appName, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua}, args);
     }
 
     self.log = log;
     self.logSocketConnection = logSocketConnection;
-    self.logRequestConnectionInfor = logRequestConnectionInfo;
+    self.logRequestConnectionInfo = logRequestConnectionInfo;
     self.isObject = isObject;
     self.isArray = isArray;
     self.arrayPrint = arrayPrint
