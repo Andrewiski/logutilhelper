@@ -267,7 +267,7 @@ var LogUtilHelper = function (options) {
                     self.options.logUnfilteredEventHandler(logData);
                 }
             } catch (ex) {
-                console.log("error", "LogUtilHelper.js", "An Error Occured calling logEventHandler", ex);
+                console.log("error", "LogUtilHelper.js", "An Error Occured calling logUnfilteredEventHandler", ex);
             }
             
             if ( shouldLogResult === true) {
