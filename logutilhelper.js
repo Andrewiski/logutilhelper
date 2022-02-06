@@ -78,7 +78,7 @@ var LogUtilHelper = function (options) {
                 transports: [
                     //new winston.transports.Console(),
                     new (winston.transports.DailyRotateFile)({
-                        filename: path.join(self.options.logFolder, '%DATE%-' + self.options.self.options.logRequestsName + '.log'),
+                        filename: path.join(self.options.logFolder, '%DATE%-' + self.options.logRequestsName + '.log'),
                         datePattern: 'YYYY-MM-DD-HH',
                         zippedArchive: true,
                         maxSize: '20m',
@@ -97,7 +97,7 @@ var LogUtilHelper = function (options) {
                 transports: [
                     //new winston.transports.Console(),
                     new (winston.transports.DailyRotateFile)({
-                        filename: path.join(self.options.logFolder, '%DATE%-' + self.options.self.options.logSocketConnectionName + '.log'),
+                        filename: path.join(self.options.logFolder, '%DATE%-' + self.options.logSocketConnectionName + '.log'),
                         datePattern: 'YYYY-MM-DD-HH',
                         zippedArchive: true,
                         maxSize: '20m',
