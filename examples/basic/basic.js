@@ -9,6 +9,14 @@ if (process.env.USELOCALLIB === "true"){
     
 }
 
+var logUnfilteredEventHandler = function(logdata){
+    console.log("logUnfilteredEventHandler", logdata);
+}
+
+var logEventHandler = function(logdata){
+    console.log("logEventHandler", logdata);
+}
+
 var logOptions = {
     appLogLevels:{
         "app1":{
@@ -21,7 +29,8 @@ var logOptions = {
         }
         
     },
-    logEventHandler: null,
+    logEventHandler: logEventHandler,
+    logUnfilteredEventHandler: logUnfilteredEventHandler,
     logFolder: "logs",
     logName: "app",
     debugUtilEnabled: true,

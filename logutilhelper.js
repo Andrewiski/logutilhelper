@@ -263,8 +263,8 @@ var LogUtilHelper = function (options) {
             let logData = { timestamp: new Date(), appName: appName, appSubname:appSubname, logLevel: logLevel, args: args };
             
             try {
-                if (self.options.logEventHandlerUnfiltered) {
-                    self.options.logEventUnfiltered(logData);
+                if (self.options.logUnfilteredEventHandler) {
+                    self.options.logUnfilteredEventHandler(logData);
                 }
             } catch (ex) {
                 console.log("error", "LogUtilHelper.js", "An Error Occured calling logEventHandler", ex);
