@@ -13,11 +13,13 @@ var LogUtilHelper = function (options) {
             application:{"app": "info"}
         },
         logEventHandler: null,
+        logUnfilteredEventHandler: null,
         logFolder: "log",
         logName: "app",
         debugUtilEnabled: true,
         debugUtilName:"app",
         logToFile: true,
+        logToFileLogLevel: "Info",
         logToMemoryObject: true,
         logToMemoryObjectMaxLogLength: 100,
         logSocketConnectionName: "app",
@@ -171,8 +173,19 @@ var LogUtilHelper = function (options) {
 
     var getLogLevel = function ( appName, appSubname) {
 
+        return getLogLevelAppLogLevels(self.options.appLogLevels, appName, appSubname)
+
         if (self.options.appLogLevels[appName] && self.options.appLogLevels[appName][appSubname]) {
             return getLevelIntegerValue(self.options.appLogLevels[appName][appSubname]);
+        } else {
+            return 100;  // Not found dump it to the screen like its a trace
+        }
+    };
+
+    var getLogLevelAppLogLevels = function (appLogLevels, appName, appSubname) {
+
+        if (appLogLevels[appName] && appLogLevels[appName][appSubname]) {
+            return getLevelIntegerValue(appLogLevels[appName][appSubname]);
         } else {
             return 100;  // Not found dump it to the screen like its a trace
         }
@@ -186,6 +199,15 @@ var LogUtilHelper = function (options) {
             return false;
         }
     };
+
+    var shouldLogToFile = function (logLevelName, logToFileLogLevel) {
+        if (getLevelIntegerValue(logLevelName) <= getLevelIntegerValue(logToFileLogLevel) ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
 
     var getRequestConnectionInfo = function (req) {
         var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -221,26 +243,37 @@ var LogUtilHelper = function (options) {
                 
             }
 
-            
-            if (shouldLog(appName, appSubname, logLevel, self.options.logLevel) === true) {
+            let shouldLogResult = shouldLog(appName, appSubname, logLevel)
+            if ( shouldLogResult === true) {
 
                 if(self.options.debugUtilEnabled){
                     debug(arrayPrint(args));
                 }
-    
-                if (args.length > 1) {
-                    args.shift(); //remove the appName from the array
+            }
+
+            if (args.length > 1) {
+                args.shift(); //remove the appName from the array
+            }
+            if (args.length > 1) {
+                args.shift(); //remove the appSubname from the array
+            }
+            if (args.length > 1) {
+                args.shift(); //remove the loglevel from the array
+            }
+            let logData = { timestamp: new Date(), appName: appName, appSubname:appSubname, logLevel: logLevel, args: args };
+            
+            try {
+                if (self.options.logEventHandlerUnfiltered) {
+                    self.options.logEventUnfiltered(logData);
                 }
-                if (args.length > 1) {
-                    args.shift(); //remove the appSubname from the array
-                }
-                if (args.length > 1) {
-                    args.shift(); //remove the loglevel from the array
-                }
-                
+            } catch (ex) {
+                console.log("error", "LogUtilHelper.js", "An Error Occured calling logEventHandler", ex);
+            }
+            
+            if ( shouldLogResult === true) {
 
                 
-                if(self.options.logToFile){
+                if(self.options.logToFile && shouldLogToFile(logLevel, self.options.logLevel) === true ){
                     let winstonLogLevel = logLevel;
                     switch (logLevel) {
                         case "panic":
@@ -260,7 +293,7 @@ var LogUtilHelper = function (options) {
                     logFile.log({ timestamp: new Date(), level: winstonLogLevel, appName: appName, appSubname:appSubname, message: args });
                 }
                 
-                let logData = { timestamp: new Date(), appName: appName, appSubname:appSubname, logLevel: logLevel, args: args };
+                
                 if(self.options.logToMemoryObject){
                     self.memoryData.logs.push(logData);
                     if (self.memoryData.logs.length > self.options.logToMemoryObjectMaxLogLength) {
@@ -275,6 +308,8 @@ var LogUtilHelper = function (options) {
                     console.log("error", "LogUtilHelper.js", "An Error Occured calling logEventHandler", ex);
                 }
             }
+
+            
 
         } catch (ex) {
             console.log("error", "LogUtilHelper.js",  'Error on log', ex);
@@ -311,7 +346,33 @@ var LogUtilHelper = function (options) {
     }
 
     var logRequestConnectionInfo = function(appName, appSubname, logLevel, req){
+        let args = []
+            for (let i = 0; i < arguments.length; i++) {
+                if (arguments[i] === undefined) {
+                    args.push("undefined");
+                } else if (arguments[i] === null) {
+                    args.push("null");
+                }
+                else {
+                    args.push(arguments[i]);
+                }
+                
+            }
 
+            if (args.length > 1) {
+                args.shift(); //remove the appName from the array
+            }
+            if (args.length > 1) {
+                args.shift(); //remove the appSubname from the array
+            }
+            if (args.length > 1) {
+                args.shift(); //remove the loglevel from the array
+            }
+            if (args.length > 1) {
+                args.shift(); //remove the socket from the array
+            }
+            var connInfo = getConnectionInfo(req);
+            log(appname, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua});
     }
 
     self.log = log;
@@ -323,6 +384,8 @@ var LogUtilHelper = function (options) {
     self.objPrint = objPrint;
     self.getSocketInfo = getSocketInfo;
     self.getRequestConnectionInfo = getRequestConnectionInfo;
+    self.shouldLog = shouldLog;
+    self.getLogLevelAppLogLevels = getLogLevelAppLogLevels;
 
 };
 module.exports = LogUtilHelper;
