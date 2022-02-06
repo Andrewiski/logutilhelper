@@ -342,7 +342,7 @@ var LogUtilHelper = function (options) {
             if (args.length > 1) {
                 args.shift(); //remove the socket from the array
             }
-            log(appName, appSubname, logLevel, logUtilHelper.getSocketInfo(socket), socket.id, args)
+            log(appName, appSubname, logLevel, getSocketInfo(socket), socket.id, args)
     }
 
     var logRequestConnectionInfo = function(appName, appSubname, logLevel, req){
@@ -372,7 +372,7 @@ var LogUtilHelper = function (options) {
                 args.shift(); //remove the socket from the array
             }
             var connInfo = getConnectionInfo(req);
-            log(appname, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua}, args);
+            log(appName, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua}, args);
     }
 
     self.log = log;
