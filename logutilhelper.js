@@ -28,7 +28,7 @@ var LogUtilHelper = function (options) {
     
     self.options = extend({}, defaultOptions, options);
 
-    self.memoryData = {
+    var memoryData = {
         logs:[]
     };
    
@@ -188,6 +188,15 @@ var LogUtilHelper = function (options) {
             return getLevelIntegerValue(appLogLevels[appName][appSubname]);
         } else {
             return 100;  // Not found dump it to the screen like its a trace
+        }
+    };
+
+    var shouldLogAppLogLevels = function (appLogLevels, appName, appSubname, logLevelName) {
+
+        if (getLevelIntegerValue(logLevelName) <= getLogLevelAppLogLevels( appLogLevels, appName, appSubname) ) {
+            return true;
+        } else {
+            return false;
         }
     };
 
@@ -374,7 +383,7 @@ var LogUtilHelper = function (options) {
             var connInfo = getRequestConnectionInfo(req);
             log(appName, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua}, args);
     }
-
+    self.memoryData = memoryData;
     self.log = log;
     self.logSocketConnection = logSocketConnection;
     self.logRequestConnectionInfo = logRequestConnectionInfo;
@@ -385,6 +394,7 @@ var LogUtilHelper = function (options) {
     self.getSocketInfo = getSocketInfo;
     self.getRequestConnectionInfo = getRequestConnectionInfo;
     self.shouldLog = shouldLog;
+    self.shouldLogAppLogLevels = shouldLogAppLogLevels
     self.getLogLevelAppLogLevels = getLogLevelAppLogLevels;
 
 };
