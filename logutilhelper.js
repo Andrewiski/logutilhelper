@@ -219,19 +219,35 @@ var LogUtilHelper = function (options) {
 
 
     var getRequestConnectionInfo = function (req) {
-        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        if (ip.substr && ip.substr(0, 7) === "::ffff:") {
-            ip = ip.substr(7);
+        var ip = "N/A";
+        var port = -1;
+        var ua =  "N/A"
+        try{
+            ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            if (ip && ip.substr && ip.substr(0, 7) === "::ffff:") {
+                ip = ip.substr(7);
+            }
+            if(req.connection){
+                port = req.connection.remotePort;
+            }
+            if(req.headers){
+                ua = req.headers['user-agent'];
+            }
+            return { ip: ip, port: port, ua: ua };
+        }catch(ex){
+            console.log("logutilhelper","error", "getRequestConnectionInfo", ex);
         }
-        var port = req.connection.remotePort;
-        var ua = req.headers['user-agent'];
-        return { ip: ip, port: port, ua: ua };
     };
 
     var getSocketInfo = function (socket) {
-        var ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
-        if (ip.substr && ip.substr(0, 7) === "::ffff:") {
-            ip = ip.substr(7);
+        var ip = "N/A";
+        try{
+            ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
+            if (ip && ip.substr && ip.substr(0, 7) === "::ffff:") {
+                ip = ip.substr(7);
+            }
+        }catch(ex){
+            console.log("logutilhelper","error", "getSocketInfo", ex);
         }
        
         return { ip: ip };
