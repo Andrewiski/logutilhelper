@@ -263,7 +263,11 @@ var LogUtilHelper = function (options) {
                     args.push("null")
                 }
                 else {
-                    args.push(JSON.parse(JSON.stringify(arguments[i])))
+                    try{
+                        args.push(JSON.parse(JSON.stringify(arguments[i])))
+                    }catch(ex5){
+                        args.push("error in serilize " + ex5.msg)
+                    }
                 }
                 
             }
@@ -343,7 +347,7 @@ var LogUtilHelper = function (options) {
 
     var logSocketConnection = function (appName, appSubname, logLevel, socket){
         let args = []
-            for (let i = 0; i < arguments.length; i++) {
+            for (let i = 3; i < arguments.length; i++) {
                 if (arguments[i] === undefined) {
                     args.push("undefined");
                 } else if (arguments[i] === null) {
@@ -355,24 +359,39 @@ var LogUtilHelper = function (options) {
                 
             }
 
-            if (args.length > 1) {
-                args.shift(); //remove the appName from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the appSubname from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the loglevel from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the socket from the array
-            }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the appName from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the appSubname from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the loglevel from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the socket from the array
+            // }
+
             log(appName, appSubname, logLevel, getSocketInfo(socket), socket.id, args)
     }
 
     var logRequestConnectionInfo = function(appName, appSubname, logLevel, req){
         let args = []
-            for (let i = 0; i < arguments.length; i++) {
+            
+
+            // if (args.length > 1) {
+            //     args.shift(); //remove the appName from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the appSubname from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the loglevel from the array
+            // }
+            // if (args.length > 1) {
+            //     args.shift(); //remove the socket from the array
+            // }
+            for (let i = 3; i < arguments.length; i++) {
                 if (arguments[i] === undefined) {
                     args.push("undefined");
                 } else if (arguments[i] === null) {
@@ -383,19 +402,7 @@ var LogUtilHelper = function (options) {
                 }
                 
             }
-
-            if (args.length > 1) {
-                args.shift(); //remove the appName from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the appSubname from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the loglevel from the array
-            }
-            if (args.length > 1) {
-                args.shift(); //remove the socket from the array
-            }
+            
             var connInfo = getRequestConnectionInfo(req);
             log(appName, appSubname, logLevel,   {path:req.path, ip: connInfo.ip, port:connInfo.port, ua:connInfo.ua}, args);
     }
