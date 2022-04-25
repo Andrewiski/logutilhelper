@@ -18,6 +18,9 @@ var LogUtilHelper = function (options) {
         logName: "app",
         debugUtilEnabled: true,
         debugUtilName:"app",
+        debugUtilUseUtilName: true,
+        debugUtilUseAppName: false,
+        debugUtilUseAppSubName: false,
         logToFile: true,
         logToFileLogLevel: "Info",
         logToMemoryObject: true,
@@ -33,6 +36,22 @@ var LogUtilHelper = function (options) {
     };
    
     const debug = require('debug')(self.options.debugUtilName);
+    var debugs = {
+        debugUtilName: debug
+    }
+    
+    if(self.options.debugUtilEnabled && (self.options.debugUtilUseAppName || debugUtilUseAppSubName)){
+        for (const [appName, logLevels] of Object.entries(self.options.appLogLevels)) {
+            if(self.options.debugUtilUseAppName){
+                debugs[appName] = require('debug')(appName);
+            }
+            if(self.options.debugUtilUseAppSubName){
+                for (const [appSubname, logLevel] of Object.entries(logLevels)) {
+                    debugs[appName + "_" + appSubname] = require('debug')(appName + ":" + appSubname);
+                }
+            }
+        }
+    }
 
     let winstonstreamerLogLevel = self.options.logLevel;
     switch (self.options.logLevel) {
@@ -275,7 +294,7 @@ var LogUtilHelper = function (options) {
             let shouldLogResult = shouldLog(appName, appSubname, logLevel)
             if ( shouldLogResult === true) {
 
-                if(self.options.debugUtilEnabled){
+                if(self.options.debugUtilEnabled && self.options.debugUtilUseUtilName === true){
                     debug(arrayPrint(args));
                 }
             }
@@ -283,12 +302,19 @@ var LogUtilHelper = function (options) {
             if (args.length > 1) {
                 args.shift(); //remove the appName from the array
             }
+            if(self.options.debugUtilEnabled && self.options.debugUtilUseAppName === true){
+                debugs[appName](arrayPrint(args))
+            }
             if (args.length > 1) {
                 args.shift(); //remove the appSubname from the array
+            }
+            if(self.options.debugUtilEnabled && self.options.debugUtilUseAppSubName === true){
+                debugs[appName + "_" + appSubname](arrayPrint(args))
             }
             if (args.length > 1) {
                 args.shift(); //remove the loglevel from the array
             }
+
             let logData = { timestamp: new Date(), appName: appName, appSubname:appSubname, logLevel: logLevel, args: args };
             
             try {

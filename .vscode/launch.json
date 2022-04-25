@@ -6,7 +6,7 @@
     "configurations": [
         
         {
-            "env": {"USELOCALLIB":"true", "DEBUG": "app"},
+            "env": {"USELOCALLIB":"true", "DEBUG": "*"},
             "command": "node examples/basic/basic.js",
             "name": "LocalDebug Run node examples/basic/basic.js",
             "request": "launch",

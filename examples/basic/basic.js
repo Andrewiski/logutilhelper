@@ -18,6 +18,7 @@ var logEventHandler = function(logdata){
 }
 
 var logOptions = {
+
     appLogLevels:{
         "app1":{
             "subapp": "info",
@@ -35,6 +36,9 @@ var logOptions = {
     logName: "app",
     debugUtilEnabled: true,
     debugUtilName:"app",
+    debugUtilUseUtilName: true,
+    debugUtilUseAppName: true,
+    debugUtilUseAppSubName: true,
     logToFile: true,
     logToMemoryObject: true,
     logToMemoryObjectMaxLogLength: 100,
