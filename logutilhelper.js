@@ -379,7 +379,7 @@ var LogUtilHelper = function (options) {
 
     var logSocketConnection = function (appName, appSubname, logLevel, socket){
         let args = []
-            for (let i = 3; i < arguments.length; i++) {
+            for (let i = 4; i < arguments.length; i++) {
                 if (arguments[i] === undefined) {
                     args.push("undefined");
                 } else if (arguments[i] === null) {
@@ -423,7 +423,7 @@ var LogUtilHelper = function (options) {
             // if (args.length > 1) {
             //     args.shift(); //remove the socket from the array
             // }
-            for (let i = 3; i < arguments.length; i++) {
+            for (let i = 4; i < arguments.length; i++) {
                 if (arguments[i] === undefined) {
                     args.push("undefined");
                 } else if (arguments[i] === null) {
