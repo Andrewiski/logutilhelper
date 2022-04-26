@@ -303,7 +303,8 @@ var LogUtilHelper = function (options) {
                 }
                 else {
                     try{
-                        args.push(JSON.parse(JSON.stringify(arguments[i])))
+                        //args.push(JSON.parse(JSON.stringify(arguments[i]))) Moved to Strings to Fix issue with circular serlize of Error Object
+                        args.push(objPrint(arguments[i]));
                     }catch(ex5){
                         args.push("error in serilize " + ex5.msg)
                     }
