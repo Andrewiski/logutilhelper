@@ -39,6 +39,7 @@ var logOptions = {
     debugUtilUseUtilName: true,
     debugUtilUseAppName: true,
     debugUtilUseAppSubName: true,
+    includeErrorStackTrace: false,
     logToFile: true,
     logToMemoryObject: true,
     logToMemoryObjectMaxLogLength: 100,
@@ -55,6 +56,7 @@ var logUtilHelper = new LogUtilHelper(
 var logCounter = 0;
 
 var test =  setInterval(() => {
+    
     logUtilHelper.log("app1", "subapp", "trace", "This is an trace Log ", logCounter);
     logUtilHelper.log("app2", "subapp1", "trace", "This is an trace Log ", logCounter);
 

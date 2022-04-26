@@ -21,6 +21,7 @@ var LogUtilHelper = function (options) {
         debugUtilUseUtilName: true,
         debugUtilUseAppName: false,
         debugUtilUseAppSubName: false,
+        includeErrorStackTrace: false,
         logToFile: true,
         logToFileLogLevel: "Info",
         logToMemoryObject: true,
@@ -150,6 +151,23 @@ var LogUtilHelper = function (options) {
         return retval;
     };
 
+    var isError = function (a) {
+        return (!!a) && a instanceof Error; //(a.constructor === Error);
+    };
+
+    var errorPrint = function (obj) {
+        var retval = '{';
+        if(obj.message){
+            retval += '"message":"' + obj.message + '"'
+        }
+        if(self.options.includeErrorStackTrace && obj.stack){
+            retval += ',"stack":"' + obj.stack + '"'
+        }
+        retval+="}"
+
+        return retval;
+    };
+
     var objPrint = function (obj) {
 
 
@@ -157,6 +175,8 @@ var LogUtilHelper = function (options) {
             return 'null';
         } else if (obj === undefined) {
             return 'undefined';
+        } else if (isError(obj)) {
+            return errorPrint(obj);    
         } else if (isArray(obj)) {
             return arrayPrint(obj);
         } else if (isObject(obj)) {
