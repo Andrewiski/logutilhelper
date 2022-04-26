@@ -323,20 +323,24 @@ var LogUtilHelper = function (options) {
             if (args.length > 1) {
                 args.shift(); //remove the appName from the array
             }
-            if(self.options.debugUtilEnabled && self.options.debugUtilUseAppName === true && debugs[appName]){
-                if(debugs[appName] === undefined){
-                    debugs[appName] = require('debug')(appName);
+            if ( shouldLogResult === true) {
+                if(self.options.debugUtilEnabled && self.options.debugUtilUseAppName === true && debugs[appName]){
+                    if(debugs[appName] === undefined){
+                        debugs[appName] = require('debug')(appName);
+                    }
+                    debugs[appName](arrayPrint(args))
                 }
-                debugs[appName](arrayPrint(args))
             }
             if (args.length > 1) {
                 args.shift(); //remove the appSubname from the array
             }
-            if(self.options.debugUtilEnabled && self.options.debugUtilUseAppSubName === true){
-                if(debugs[appName + "_" + appSubname] === undefined){
-                    debugs[appName + "_" + appSubname] = require('debug')(appName + ":" + appSubname);
+            if ( shouldLogResult === true) {
+                if(self.options.debugUtilEnabled && self.options.debugUtilUseAppSubName === true){
+                    if(debugs[appName + "_" + appSubname] === undefined){
+                        debugs[appName + "_" + appSubname] = require('debug')(appName + ":" + appSubname);
+                    }
+                    debugs[appName + "_" + appSubname](arrayPrint(args))
                 }
-                debugs[appName + "_" + appSubname](arrayPrint(args))
             }
             if (args.length > 1) {
                 args.shift(); //remove the loglevel from the array

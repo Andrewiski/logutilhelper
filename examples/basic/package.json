@@ -22,7 +22,7 @@
       "start": "DEBUG=app node basic.js"
     },
     "dependencies": {
-        "@andrewiski/logutilhelper": "^1.0.19"
+        "@andrewiski/logutilhelper": "^1.0.20"
     }
   }
   
