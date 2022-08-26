@@ -41,7 +41,7 @@ var LogUtilHelper = function (options) {
         debugUtilName: debug
     }
     
-    if(self.options.debugUtilEnabled && (self.options.debugUtilUseAppName || debugUtilUseAppSubName)){
+    if(self.options.debugUtilEnabled && (self.options.debugUtilUseAppName || self.options.debugUtilUseAppSubName)){
         for (const [appName, logLevels] of Object.entries(self.options.appLogLevels)) {
             if(self.options.debugUtilUseAppName){
                 debugs[appName] = require('debug')(appName);
