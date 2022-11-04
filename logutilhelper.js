@@ -23,7 +23,7 @@ var LogUtilHelper = function (options) {
         debugUtilUseAppSubName: false,
         includeErrorStackTrace: false,
         logToFile: true,
-        logToFileLogLevel: "Info",
+        logToFileLogLevel: "warning",
         logToMemoryObject: true,
         logToMemoryObjectMaxLogLength: 100,
         logSocketConnectionName: "app",
@@ -294,6 +294,10 @@ var LogUtilHelper = function (options) {
 
     var log = function (appName, appSubname, logLevel) {
         try {
+            let shouldLogResult = shouldLog(appName, appSubname, logLevel)
+            if(shouldLogResult === false){
+                return;  //Performance improvement if we are not going to log it don't do all the stringfy arg shifting etc.
+            }
             let args = []
             for (let i = 0; i < arguments.length; i++) {
                 if (arguments[i] === undefined) {
@@ -312,7 +316,7 @@ var LogUtilHelper = function (options) {
                 
             }
 
-            let shouldLogResult = shouldLog(appName, appSubname, logLevel)
+            
             if ( shouldLogResult === true) {
 
                 if(self.options.debugUtilEnabled && self.options.debugUtilUseUtilName === true){
