@@ -1,0 +1,30 @@
+{
+    "name": "logutilhelperexampleadvanced",
+    "version": "0.0.1",
+    "description": "Log Util Helper Advanced Example",
+    "main": "basic.js",
+    "license": "GPL-3.0-or-later",
+    "private": false,
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/andrewiski/logutilhelper"
+    },
+    "author": {
+      "name": "Andrew DeVries",
+      "email": "adevries@digitalexample.com",
+      "url": "https://digitalexample.com"
+    },
+    
+    "engines": {
+      "node": ">=12.0"
+    },
+    "scripts": {
+      "start": "DEBUG=app node advanced.js"
+    },
+    "dependencies": {
+        "@andrewiski/logutilhelper": "^1.0.20",
+        "express": "^4.17.2",
+        "socket.io": "^4.5.3"
+    }
+  }
+  

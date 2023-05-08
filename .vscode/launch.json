@@ -12,6 +12,13 @@
             "request": "launch",
             "type": "node-terminal"
         },
+        {
+            "env": {"USELOCALLIB":"true", "DEBUG": "*"},
+            "command": "node examples/advanced/advanced.js",
+            "name": "LocalDebug Run node examples/advanced/advanced.js",
+            "request": "launch",
+            "type": "node-terminal"
+        },
  
     ]
 }

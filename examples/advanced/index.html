@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html class="h-100">
+<head>
+    <meta charset="utf-8" />
+    <title>Advanced Log Util Helper</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js" integrity="sha512-42PE0rd+wZ2hNXftlM78BSehIGzezNeQuzihiBCvUEB3CVxHvsShF86wBWwQORNxNINlBPuq7rG4WWhNiTVHFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!--Served up by the socket.io service directly as part of the IO service process-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(document).ready(function(){
+            var commonData = {
+                logLevels: [],
+                socketIo: io({transports: ["websocket", "polling"], upgrade: true, rememberupgrade:true, reconnectionAttempts:15})
+            };
+            var getLogLevels = function(){
+                return new Promise(function(resolve, reject) {
+                   
+                    $.ajax({
+                        url: "api/logLevels",
+                        type: "GET"
+                    }).then(
+                        function(data){
+                            console.log("success", "getLogLevels", data);
+                            commonData.appLogLevels = data;
+                            resolve(data);
+                        },
+                        function(ex){
+                            console.error("error", "getLogLevels", ex);
+                            reject(ex);
+                        }
+                    );
+                   
+                });
+            };
+            var getLogs = function(){
+                return new Promise(function(resolve, reject) {
+                    $.ajax({
+                        url: "api/logs",
+                        type: "GET"
+                    }).then(
+                        function(data){
+                            console.log("success", "getLogs", data);
+                            resolve(data);
+                        },
+                        function(ex){
+                            console.error("error", "getLogs", ex);
+                            reject(ex);
+                        }
+                    );
+                });
+            };
+
+            var $logRowTemplate = $('.templates').find('.logTemplate').find('.logRow');
+
+            var updateLogs = function(logs){
+                try{
+                    if(logs && logs.length > 0){
+                        $.each(logs, function(index, log){
+                            addLogRow(log, $('.logContainer'), false);
+                        });
+                    }
+                }catch(ex){
+                    console.error("error", "updateLogs", ex);
+                }
+            };
+
+            var isObject = function (a) {
+                return (!!a) && (a.constructor === Object);
+            };
+            var addLogRow = function (log, $logContainer, doFade) {
+                try {
+                    let $logRow = $logRowTemplate.clone();
+                    let timestamp = moment(log.timestamp)
+                    //$streamerLogRow.find('.logTs').html(timestamp.format('L') + '&nbsp;' + timestamp.format('hh:mm:ss.SSS') + "&nbsp" + timestamp.format('A'));
+                    $logRow.find('.logTs').text(moment(log.timestamp).format('YYYY-MM-DD HH:mm:ss.SSS'));
+
+                    $logRow.find('.logAppName').text(log.appName);
+                    $logRow.find('.logAppSubname').text(log.appSubname);
+                    $logRow.find('.logLevel').text(log.logLevel);
+                    //$streamerLogRow.find('.logTs').text(moment(log.timestamp).format('YYYY-MM-DD HH:mm:ss.SSS') );
+                    let logLevelClass = "info";
+                    switch (log.logLevel) {
+                        case 'error':
+                        case 'panic':
+                        case 'fatal':
+                            logLevelClass = 'table-danger';
+                            break;
+                        case 'warning':
+                            logLevelClass = 'table-warning';
+                            break;
+                        case 'trace':
+                        case 'verbose':
+                        case 'debug':
+                            logLevelClass = 'table-light';
+                            break;
+                    }
+                    $logRow.attr('title', log.logLevel).addClass(logLevelClass);
+                    let logMessage = '';
+                    if (log.args) {
+                        $.each(log.args, function (index, item) {
+                            try {
+                                if (logMessage.length > 0) {
+                                    logMessage = logMessage + ', ';
+                                }
+                                if (isObject(log.args[index])) {
+                                    logMessage = logMessage + JSON.stringify(log.args[index]);
+                                } else {
+                                    if (log.args[index] === undefined) {
+                                        logMessage = logMessage + 'undefined';
+                                    } else if (log.args[index] === null) {
+                                        logMessage = logMessage + 'null';
+                                    }
+                                    else {
+                                        logMessage = logMessage + log.args[index].toString();
+                                    }
+                                }
+                            } catch (ex) {
+                                console.log('error', 'Error addServerLog args', ex);
+                            }
+                        });
+                    }
+                    $logRow.find('.logMsg').html(logMessage);
+                    
+                    if(doFade){
+                        $logRow.hide();
+                        $logContainer.prepend($logRow);
+                        $logRow.fadeIn("slow", function () {
+
+                        });
+                    }else{
+                        $logContainer.prepend($logRow);
+                        //$logRow.show();
+                    }
+                    if ($logContainer.length > 100) {
+                        if(doFade){
+                            $logContainer.last().fadeOut("slow", function () {
+                                $(this).remove();
+                            });
+                        }else{
+                            $logContainer.last().remove();
+                        }
+                    }
+                } catch (ex) {
+                    console.log('error', 'Error addLogRow', ex);
+                }
+            };
+
+            var logSubscribeTimerID = null;
+            //purpose of this timer is to send a subscribe even for a single webrowser client to the server every two minutes that is wants live log events from the server,
+            // if a particular webbrowser does not send anoth subscribe event with in the timeout window it will stop forwarding its events without request thus
+            // reducing the log and event chater from the server when it is not actively being viewed
+
+            var unsubscribeLiveLogs = function () {
+                try{
+                    console.log("unsubscribeLiveLogs");
+                    if (logSubscribeTimerID) {
+                        try {
+                            window.clearTimeout(logSubscribeTimerID);
+                            logSubscribeTimerID = null;
+                            commonData.socketIo.emit("logs", { "cmd": "unsubscribe" });
+                        } catch (ex) {
+                            console.log("error unsubscribeLiveLogs clearTimeout", ex)
+                        }
+                    }
+                }catch(ex){
+                    console.log("error unsubscribeLiveLogs", ex)
+                }
+            }
+
+            var resubscribeLiveLogs = function () {
+                try{
+                    console.log("resubscribeLiveLogs");
+                    if (logSubscribeTimerID) {
+                        commonData.socketIo.emit("logs", { "cmd": "resubscribe" });
+                        logSubscribeTimerID = window.setTimeout(resubscribeLiveLogs, 2 * 60 * 1000);
+                    }
+                }catch(ex){
+                    console.log("error resubscribeLiveLogs", ex)
+                }
+            }
+
+            var subscribeLiveLogs = function () {
+                try{
+                    console.log("subscribeLiveLogs");
+                    if (logSubscribeTimerID) {
+                        window.clearTimeout(logSubscribeTimerID);
+                    }
+                    
+                    commonData.socketIo.emit("logs", { "cmd": "subscribe", "data": {"appLogLevels": commonData.appLogLevels} });
+                    logSubscribeTimerID = window.setTimeout(resubscribeLiveLogs, 10 * 60 * 1000 );
+                }catch(ex){
+                    console.log("error subscribeLiveLogs", ex)
+                }
+                
+            }
+
+
+            var updateAppLogNames = function (appLogLevels) {
+                try {
+                    var $appLogName = $('select.appLogName');
+                    $appLogName.empty();
+                    $.each(appLogLevels, function (appLogNameIndex, appLogName) {
+                        $appLogName.append($('<option>', {
+                            value: appLogNameIndex,
+                            text: appLogNameIndex
+                        }));
+                    })
+                    $appLogName.trigger("change");
+                    //onLogNameChange({ target: $appLogName });
+                } catch (ex) {
+                    console.log('error', 'Error addStreamerLog', ex);
+                }
+            }
+
+            $("select.appLogName").on("change", function (evt) {
+                var $appLogName = $(evt.target);
+                var $appLogSubname = $appLogName.parent().find('select.appLogSubname');
+                $appLogSubname.empty();
+                $.each(commonData.appLogLevels[$appLogName.val()], function (appLogSubnameIndex, appLogSubname) {
+                    $appLogSubname.append($('<option>', {
+                        value: appLogSubnameIndex,
+                        text: appLogSubnameIndex
+                    }));
+
+                })
+                $appLogSubname.trigger("change");
+                //onAppLogSubnameChange({ target: $appLogSubname})
+            });
+            $("select.appLogSubname").on("change", function (evt) {
+                var $appLogSubname = $(evt.target);
+                var $appLogName = $appLogSubname.parent().find('select.appLogName');
+                var $appLogLevelName = $appLogSubname.parent().find('select.appLogLevelName');
+                $appLogLevelName.val(commonData.appLogLevels[$appLogName.val()][$appLogSubname.val()]);
+            });
+
+            $("select.appLogLevelName").on("change", function (evt) {
+
+                let $logLevelName = $(evt.target);
+                let appLogName = $logLevelName.parent().find('select.appLogName').val();
+                let appLogSubname = $logLevelName.parent().find("select.appLogSubname").val();
+                let logLevelName = $logLevelName.val();
+                commonData.appLogLevels[appLogName][appLogSubname] = logLevelName;
+                commonData.socketIo.emit("logs", {
+                    "cmd": "setAppLogLevels", "data": {"appLogLevels": commonData.appLogLevels}
+                });
+
+            });
+
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (evt) {
+                var target = $(evt.target).attr("href"); // activated tab
+                if(target !== "#liveLogs"){
+                    unsubscribeLiveLogs();
+                }
+                switch (target) {
+                    case "#liveLogs":
+                        subscribeLiveLogs();
+                        commonData.socketIo.emit("logs", { "cmd": "subscribe" });
+                        break;
+                    case "logs":
+                        getLogs().then(
+                            function (logs) {
+                                updateLogs(logs);
+                            },
+                            function (error) {
+                                console.log("error getLogs", error);
+                            }
+                        );
+                    
+                }
+            });
+
+            getLogLevels().then(
+                function (appLogLevels) {
+                    updateAppLogNames(appLogLevels);
+                }, 
+                function (error) {
+                    console.log("error getLogLevels", error);
+                }
+            );
+            getLogs().then(
+                function (logs) {
+                    updateLogs(logs);
+                },
+                function (error) {
+                    console.log("error getLogs", error);
+                }
+            );
+
+            commonData.socketIo.on("connect", function(){
+                $(".socketIoStatusIcon").addClass("bs-success").removeClass("bs-danger").text("Connected");
+                $(".socketIoStatusReason").text("");
+                //IF we have an active time then resubscribe
+                if(logSubscribeTimerID){
+                    subscribeLiveLogs();
+                }
+            })
+            commonData.socketIo.on("disconnect", function(reason){
+                $(".socketIoStatusIcon").addClass("bs-danger").removeClass("bs-success").text("Disconnected");
+                $(".socketIoStatusReason").text(reason);
+
+            })
+            var $liveLogContainer = $(".liveLogContainer");
+
+            commonData.socketIo.on("logs", function(request){
+                try{
+                    switch(request.cmd){
+                        case "liveLog":
+                            addLogRow(request.data,$liveLogContainer, true);
+                            break;
+                        case "subscribe":
+                            //server sends this if it gets a resubscribe but is not subscribed and needs appLogLevels
+                            subscribeLiveLogs();
+                            break;
+                        default:
+                            console.log("error socket.io on logs", request);
+                
+                    }
+                }catch(ex){
+                    console.error("error lsocket.io on logs", ex);
+                }
+            })
+            
+        });
+    </script>
+    
+    
+</head>
+<body class="d-flex flex-column h-100">
+    <header>     
+        <div class="navbar navbar-expand-lg navbar-light bg-light" >
+            <div class="container">
+                <div>
+                    <div class="pull-left">
+                        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarTopMenu" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right">
+                        <div class="collapse navbar-collapse" id="navbarTopMenu">
+                            <ul class="navbar-nav navbar-right me-auto mb-2 mb-lg-0 ">  
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">Home</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>    
+    <main class="flex-shrink-0" >
+        <div class="container">
+            <div class="row">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="nav-item active"><a href="#logs" class="nav-link" aria-controls="logs" role="tab" data-bs-toggle="tab">Simple Logs</a></li>
+                    <li role="presentation" class="nav-item"><a href="#liveLogs" class="nav-link" aria-controls="liveLogs" role="tab" data-bs-toggle="tab">Live Logs</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade show active" id="logs">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Simple Logs - <i class="bi bi-arrow-clockwise btnRefreshLogs"></i></div>
+                            <div class="panel-body">
+                                <div class="container-fluid ">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr><th>Timestamp</th><th>Name</th><th>Sub Name</th><th>Level</th><th>Message</th></tr>
+                                        </thead>
+                                        <tbody class="logContainer">
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                    <div role="tabpanel" class="tab-pane fade" id="liveLogs">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><span>Live Logs&nbsp;&nbsp;</span><span><i class="bi bi-cloud socketIoStatusIcon"></i>&nbsp;&nbsp;</span><span class="socketIoStatus"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="socketIoStatusReason"></span></div>
+                            <div class="panel-body">
+                                <div class="input-group">
+                                    
+                                    <select class="form-select appLogName"></select><select class="form-select appLogSubname"></select><select class="form-select appLogLevelName"><option>error</option><option>warning</option><option>info</option><option>debug</option><option>trace</option></select>
+                                </div>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr><th>Timestamp</th><th>Name</th><th>Sub Name</th><th>Level</th><th>Message</th></tr>
+                                    </thead>
+                                    <tbody class="liveLogContainer">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <p class="text-center">
+                <span class="text-muted">© 2023 - Digital Example LLC</span>
+            </p>
+        </div>
+    </footer>
+    <div class="templates" style="display:none">
+        <div class="logTemplate">
+            <table>
+                <tr class="logRow"><td class="logTs"></td><td class="logAppName"></td><td class="logAppSubname"></td><td class="logLevel"></td><td class="logMsg"></td></tr>
+            </table>
+
+        </div>
+    </div>
+</body>
+</html>

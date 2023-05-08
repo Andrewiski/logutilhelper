@@ -282,8 +282,8 @@ var LogUtilHelper = function (options) {
         var ip = "N/A";
         try{
             ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
-            if (ip && ip.substr && ip.substr(0, 7) === "::ffff:") {
-                ip = ip.substr(7);
+            if (ip && ip.substring && ip.substring(0, 7) === "::ffff:") {
+                ip = ip.substring(7);
             }
         }catch(ex){
             console.log("logutilhelper","error", "getSocketInfo", ex);
