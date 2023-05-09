@@ -13,7 +13,7 @@
     <!--Served up by the socket.io service directly as part of the IO service process-->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        $(document).ready(function(){
+        $(function(){
             var commonData = {
                 logLevels: [],
                 socketIo: io({transports: ["websocket", "polling"], upgrade: true, rememberupgrade:true, reconnectionAttempts:15})
@@ -61,6 +61,7 @@
             var updateLogs = function(logs){
                 try{
                     if(logs && logs.length > 0){
+                        $('.logContainer').empty();
                         $.each(logs, function(index, log){
                             addLogRow(log, $('.logContainer'), false);
                         });
@@ -84,7 +85,7 @@
                     $logRow.find('.logAppSubname').text(log.appSubname);
                     $logRow.find('.logLevel').text(log.logLevel);
                     //$streamerLogRow.find('.logTs').text(moment(log.timestamp).format('YYYY-MM-DD HH:mm:ss.SSS') );
-                    let logLevelClass = "info";
+                    let logLevelClass = "";
                     switch (log.logLevel) {
                         case 'error':
                         case 'panic':
@@ -94,13 +95,21 @@
                         case 'warning':
                             logLevelClass = 'table-warning';
                             break;
+                        case 'info':
+                                logLevelClass = 'table-success';
+                                break;
+                        case 'debug':
+                            logLevelClass = 'table-info';
+                            break;
                         case 'trace':
                         case 'verbose':
-                        case 'debug':
-                            logLevelClass = 'table-light';
                             break;
                     }
-                    $logRow.attr('title', log.logLevel).addClass(logLevelClass);
+                    if(logLevelClass!== ""){
+                        $logRow.addClass(logLevelClass);
+                    }
+                    $logRow.attr('title', log.logLevel);
+                    
                     let logMessage = '';
                     if (log.args) {
                         $.each(log.args, function (index, item) {
@@ -245,10 +254,12 @@
                 let appLogName = $logLevelName.parent().find('select.appLogName').val();
                 let appLogSubname = $logLevelName.parent().find("select.appLogSubname").val();
                 let logLevelName = $logLevelName.val();
-                commonData.appLogLevels[appLogName][appLogSubname] = logLevelName;
-                commonData.socketIo.emit("logs", {
-                    "cmd": "setAppLogLevels", "data": {"appLogLevels": commonData.appLogLevels}
-                });
+                if(commonData.appLogLevels[appLogName][appLogSubname] !== logLevelName){
+                    commonData.appLogLevels[appLogName][appLogSubname] = logLevelName;
+                    commonData.socketIo.emit("logs", {
+                        "cmd": "setAppLogLevels", "data": {"appLogLevels": commonData.appLogLevels}
+                    });
+                }
 
             });
 
