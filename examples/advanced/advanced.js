@@ -19,7 +19,7 @@ var logUnfilteredEventHandler = function(logdata){
     //console.log("logUnfilteredEventHandler", logdata);
     let needToDeleteliveLogSockets = [];
     for (const item of Object.values(privateData.liveLogSockets)) {
-        if(item.timeStamp < new Date() - 1000 * 180){
+        if(item.timestamp < new Date() - 1000 * 180){
             //if the subscription is older than 3 minutes, delete it
             needToDeleteliveLogSockets.push(item.socket.id);
         }else{
@@ -163,16 +163,16 @@ io.on('connection', function (socket) {
                         break;
                     case "subscribe":
                         if(privateData.liveLogSockets[socket.id] !== undefined){
-                            privateData.liveLogSockets[socket.id].timeStamp = new Date();
+                            privateData.liveLogSockets[socket.id].timestamp = new Date();
                         }else{
-                            privateData.liveLogSockets[socket.id] = {socket: socket, timeStamp: new Date(), appLogLevels: request.data.appLogLevels};
+                            privateData.liveLogSockets[socket.id] = {socket: socket, timestamp: new Date(), appLogLevels: request.data.appLogLevels};
                         }
                         break;
                     case "resubscribe":
                         if(privateData.liveLogSockets[socket.id] !== undefined){
-                            privateData.liveLogSockets[socket.id].timeStamp = new Date();
+                            privateData.liveLogSockets[socket.id].timestamp = new Date();
                         }else{
-                            privateData.liveLogSockets[socket.id] = {socket: socket, timeStamp: new Date()};
+                            privateData.liveLogSockets[socket.id] = {socket: socket, timestamp: new Date()};
                             //tell the client to resend appLogLevels as we do not have them
                             socket.emit('logs', {cmd: "subscribe", data: {}});
                         }
@@ -181,7 +181,7 @@ io.on('connection', function (socket) {
                         if(privateData.liveLogSockets[socket.id] !== undefined){
                             privateData.liveLogSockets[socket.id].appLogLevels =  request.data.appLogLevels;
                         }else{
-                            privateData.liveLogSockets[socket.id] = {socket: socket, timeStamp: new Date(), appLogLevels:request.data.appLogLevels};
+                            privateData.liveLogSockets[socket.id] = {socket: socket, timestamp: new Date(), appLogLevels:request.data.appLogLevels};
                         }
                         break;
                     case "unsubscribe":
